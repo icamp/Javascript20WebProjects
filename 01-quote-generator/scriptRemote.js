@@ -6,14 +6,12 @@ const twitterBtn = document.getElementById('twitter');
 const newQuoteBtn = document.getElementById('new-quote');
 const loader = document.getElementById('loader');
 
-// Show loading
-function loading() {
+function showLoadingSpinner() {
     loader.hidden = false;
     quoteContainer.hidden = true;
 }
 
-// Hide loading
-function complete() {
+function removeLoadingSpinner() {
     if (!loader.hidden) {
         quoteContainer.hidden = false;
         loader.hidden = true;
@@ -22,9 +20,9 @@ function complete() {
 
  // Get quote from API
 async function getQuote() {
-    loading();
+    showLoadingSpinner();
     const proxyUrl = 'https://cors-anywhere.herokuapp.com/'
-    const apiUrl = 'https://api.forismatic.com/api/1.0/?method=getQuote&lang=en&format=json';
+    const apiUrl = 'https://api.forsmatic.com/api/1.0/?method=getQuote&lang=en&format=json';
     try {
         const response = await fetch(proxyUrl + apiUrl);
         const data = await response.json();
@@ -42,11 +40,21 @@ async function getQuote() {
         }
         quoteText.innerText = data.quoteText;
         // Stop loader & show quote
-        complete();
+        removeLoadingSpinner();
     } catch (error) {
-        getQuote();
-        console.log("Uh oh! This don't look like no quote: ", error);
-        // Alert("Uh oh! This don't look like no quote: ", error);
+
+        // for (var i = 0; i < 10; i++) {
+        //     getQuote();
+        //     console.log("Uh oh! This don't look like no quote: ", error);
+        // }
+        
+        let i = 0;
+        do {
+            i++;
+            getQuote();
+            console.log("Uh oh! This don't look like no quote: ", error);
+            console.log("i = ", i);
+        }   while ( i<10 );
     }
 }
 
