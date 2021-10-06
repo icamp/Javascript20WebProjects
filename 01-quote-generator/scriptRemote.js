@@ -6,6 +6,8 @@ const twitterBtn = document.getElementById('twitter');
 const newQuoteBtn = document.getElementById('new-quote');
 const loader = document.getElementById('loader');
 
+let apiCallRetries = 0;
+
 function showLoadingSpinner() {
     loader.hidden = false;
     quoteContainer.hidden = true;
@@ -22,7 +24,7 @@ function removeLoadingSpinner() {
 async function getQuote() {
     showLoadingSpinner();
     const proxyUrl = 'https://cors-anywhere.herokuapp.com/'
-    const apiUrl = 'https://api.forsmatic.com/api/1.0/?method=getQuote&lang=en&format=json';
+    const apiUrl = 'https://api.forismatic.com/api/1.0/?method=getQuote&lang=en&format=json';
     try {
         const response = await fetch(proxyUrl + apiUrl);
         const data = await response.json();
@@ -39,22 +41,16 @@ async function getQuote() {
             quoteText.classList.remove('long-quote');
         }
         quoteText.innerText = data.quoteText;
+        // Reset retries counter
+        apiCallRetries = 0;
         // Stop loader & show quote
         removeLoadingSpinner();
-    } catch (error) {
-
-        // for (var i = 0; i < 10; i++) {
-        //     getQuote();
-        //     console.log("Uh oh! This don't look like no quote: ", error);
-        // }
-        
-        let i = 0;
-        do {
-            i++;
-            getQuote();
-            console.log("Uh oh! This don't look like no quote: ", error);
-            console.log("i = ", i);
-        }   while ( i<10 );
+    } catch (error) {       
+        if (apiCallRetries < 5) {
+            apiCallRetries++;
+            getQuote()
+            console.log("Uh oh, this didn't go well: ", error)
+        }
     }
 }
 
